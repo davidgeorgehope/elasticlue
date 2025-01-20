@@ -8,3 +8,5 @@ TODO
 3 Make it so you need to find all the clues to make full sense of who the murderer is. 
 
 4 Add bugs and performance issues to fix. Make it so you can't complete the game unless you fix the bugs. 
+
+python -m http.server 8000       
