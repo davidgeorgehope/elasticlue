@@ -9,4 +9,3 @@ TODO
 
 4 Add bugs and performance issues to fix. Make it so you can't complete the game unless you fix the bugs. 
 
-python -m http.server 8000       
