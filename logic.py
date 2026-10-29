@@ -9,7 +9,7 @@ import textwrap
 from openai import OpenAI
 
 XAI_API_KEY = os.getenv("XAI_API_KEY")
-XAI_MODEL = os.getenv("XAI_MODEL", "grok-4.3")
+XAI_MODEL = os.getenv("XAI_MODEL", "grok-4.7")
 _client = OpenAI(api_key=XAI_API_KEY, base_url="https://api.x.ai/v1") if XAI_API_KEY else None
 
 
