@@ -2,8 +2,8 @@ import random
 import json
 from flask import Flask, request, render_template_string, redirect, url_for, jsonify
 import sys
-import openai
 
+import logic
 from logic import (
     PLAYER_CHAR, CLUE_CHAR, FLOOR_CHAR, WALL_CHAR, DOOR_CHAR,
     victim_data, suspects_data, weapons_data, clues_data,
@@ -404,18 +404,12 @@ def chat_ajax():
     for item in chat_history[suspect_name]:
         msgs.append(item)
 
-    ai_text = "(No OPENAI_API_KEY configured.)"
-    if openai.api_key:
+    ai_text = "(No XAI_API_KEY configured.)"
+    if logic._client:
         try:
-            resp = openai.ChatCompletion.create(
-                model="gpt-4o",
-                messages=msgs,
-                max_tokens=100,
-                temperature=0.9
-            )
-            ai_text = resp["choices"][0]["message"]["content"]
+            ai_text = logic.chat(msgs, max_tokens=100, temperature=0.9)
         except Exception as e:
-            ai_text = f"(OpenAI error: {e})"
+            ai_text = f"(xAI error: {e})"
 
     chat_history[suspect_name].append({"role": "assistant", "content": ai_text})
 
