@@ -6,9 +6,19 @@ import os
 import json
 import textwrap
 
-import openai
+from openai import OpenAI
 
-openai.api_key = os.getenv("OPENAI_API_KEY", None)
+XAI_API_KEY = os.getenv("XAI_API_KEY")
+XAI_MODEL = os.getenv("XAI_MODEL", "grok-4.3")
+_client = OpenAI(api_key=XAI_API_KEY, base_url="https://api.x.ai/v1") if XAI_API_KEY else None
+
+
+def chat(messages, max_tokens, temperature):
+    """Single chat completion against xAI (Grok); returns the reply text."""
+    resp = _client.chat.completions.create(
+        model=XAI_MODEL, messages=messages, max_tokens=max_tokens, temperature=temperature
+    )
+    return resp.choices[0].message.content or ""
 
 locale.setlocale(locale.LC_ALL, '')
 
@@ -70,8 +80,8 @@ def generate_story_clues_and_intro(murderer_name, weapon_name, used_room_names):
       - A short spooky intro (10-20 words).
       - A list of six short textual clues referencing the scenario.
     """
-    if not openai.api_key:
-        return "(No story - missing OPENAI_API_KEY)", "(No intro)", []
+    if not _client:
+        return "(No story - missing XAI_API_KEY)", "(No intro)", []
 
     room_list_str = ", ".join(used_room_names)
     system_prompt = (
@@ -98,18 +108,12 @@ def generate_story_clues_and_intro(murderer_name, weapon_name, used_room_names):
     )
 
     try:
-        response = openai.ChatCompletion.create(
-            model="gpt-4o",
-            messages=[
+        assistant_text = chat([
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
-            ],
-            max_tokens=400,
-            temperature=0.9
-        )
-        assistant_text = response["choices"][0]["message"]["content"]
+            ], max_tokens=400, temperature=0.9)
     except Exception as e:
-        return (f"(Failed to generate story via ChatGPT: {e})", "(No intro)", [])
+        return (f"(Failed to generate story via Grok: {e})", "(No intro)", [])
 
     story_text = "(No story parsed)"
     intro_text = "(No intro parsed)"

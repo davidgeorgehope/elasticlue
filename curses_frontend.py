@@ -3,7 +3,7 @@ import textwrap
 import random
 import sys
 
-import openai
+import logic
 from logic import (
     PLAYER_CHAR, CLUE_CHAR, FLOOR_CHAR, WALL_CHAR, DOOR_CHAR,
     victim_data, suspects_data, weapons_data, clues_data,
@@ -84,18 +84,12 @@ def chat_with_suspect(stdscr, suspect, is_murderer):
         chat_history[suspect_name].append({"role": "user", "content": user_msg})
 
         try:
-            if not openai.api_key:
-                ai_text = "(No OPENAI_API_KEY configured.)"
+            if not logic._client:
+                ai_text = "(No XAI_API_KEY configured.)"
             else:
-                resp = openai.ChatCompletion.create(
-                    model="gpt-4o",
-                    messages=build_messages(),
-                    max_tokens=100,
-                    temperature=0.9
-                )
-                ai_text = resp["choices"][0]["message"]["content"]
+                ai_text = logic.chat(build_messages(), max_tokens=100, temperature=0.9)
         except Exception as e:
-            ai_text = f"(OpenAI error: {e})"
+            ai_text = f"(xAI error: {e})"
 
         chat_history[suspect_name].append({"role": "assistant", "content": ai_text})
 
